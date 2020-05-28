@@ -56,17 +56,32 @@ public class Automate {
 	
 	public boolean isComplet() {
 		boolean test = true;
+		int totalSymboles = this.nbSymboles;
+
+		if(this.motVide) {
+			totalSymboles += 1;
+		}
+		
 		for(int x = 0; x < this.nbEtats; x++) {
-			for(int y = 0; y < this.nbSymboles; y++) {
+			for(int y = 0; y < totalSymboles; y++) {
 				if(this.tabTransi[x][y].equalsIgnoreCase("-")) {
 					test = false;
-					System.out.println("L'automate n°" + this.id + " n'est pas complet car il lui manque des transitions.");
-					return this.isComplet;
+					if(this.motVide && y == totalSymboles) {
+						System.out.println("(" + x + ")--[*]-->" );
+					} else {
+						System.out.println("(" + x + ")--[" + this.alphabet[y] + "]-->" );
+					}
 				}
 			}
 		}
 		this.isComplet = test;
-		System.out.println("L'automate n°" + this.id + " est pas complet.");
+		
+		if(this.isComplet) {
+			System.out.println("L'automate n°" + this.id + " est complet.");
+		} else {
+			System.out.println("L'automate n°" + this.id + " n'est pas complet car il lui manque les transitions précédentes.");
+		}
+		
 		return this.isComplet;
 	}
 	
