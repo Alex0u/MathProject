@@ -1,7 +1,15 @@
 import java.util.ArrayList;
 
-public class Sommet {
+public class Etat {
 	private String nom;
+	private boolean entree, sortie;
+	private ArrayList<Transition> listEntrantes, listSortantes;
+	
+	public Etat(String nom) {
+		this.listEntrantes = new ArrayList<Transition>();
+		this.listSortantes = new ArrayList<Transition>();
+		this.nom = nom;
+	}
 	
 	public String getNom() {
 		return nom;
@@ -23,18 +31,16 @@ public class Sommet {
 	public void setSortie(boolean sortie) {
 		this.sortie = sortie;
 	}
-	public ArrayList<Arc> getListEntrantes() {
+	public ArrayList<Transition> getListEntrantes() {
 		return listEntrantes;
 	}
-	public void setListEntrantes(ArrayList<Arc> listEntrantes) {
-		this.listEntrantes = listEntrantes;
+	public void addListEntrantes(Transition tr) {
+		this.listEntrantes.add(tr);
 	}
-	public ArrayList<Arc> getListSortantes() {
+	public ArrayList<Transition> getListSortantes() {
 		return listSortantes;
 	}
-	public void setListSortantes(ArrayList<Arc> listSortantes) {
-		this.listSortantes = listSortantes;
+	public void addListSortantes(Transition tr) {
+		this.listSortantes.add(tr);
 	}
-	private boolean entree, sortie;
-	private ArrayList<Arc> listEntrantes, listSortantes;
 }

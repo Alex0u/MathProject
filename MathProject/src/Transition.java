@@ -1,12 +1,12 @@
 
-public class Arc {
+public class Transition {
 	private String symbole;
-	private Sommet sommetInit, sommetFinal;
+	private Etat etatInit, etatFinal;
 	
-	public Arc(String symbole, Sommet sommetInit, Sommet sommetFinal) {
+	public Transition(String symbole, Etat etatInit, Etat etatFinal) {
 		this.symbole = symbole;
-		this.sommetInit = sommetInit;
-		this.sommetFinal = sommetFinal;
+		this.etatInit = etatInit;
+		this.etatFinal = etatFinal;
 	}
 	
 	public String getSymbole() {
@@ -17,23 +17,23 @@ public class Arc {
 		this.symbole = symbole;
 	}
 	
-	public Sommet getSommetInit() {
-		return this.sommetInit;
+	public Etat getSommetInit() {
+		return this.etatInit;
 	}
 	
-	public Sommet getSommetFinal() {
-		return this.sommetFinal;
+	public Etat getSommetFinal() {
+		return this.etatFinal;
 	}
 	
-	public void setSommetInit(Sommet sommetInit) {
-		this.sommetInit = sommetInit;
+	public void setSommetInit(Etat sommetInit) {
+		this.etatInit = sommetInit;
 	}
 	
-	public void setSommetFinal(Sommet sommetFinal) {
-		this.sommetFinal = sommetFinal;
+	public void setSommetFinal(Etat sommetFinal) {
+		this.etatFinal = sommetFinal;
 	}
 	
 	public String toString() {
-		return "(" + this.sommetInit.getNom() + ") --[" + this.symbole + "]-->(" + this.sommetFinal.getNom() + ")"; 
+		return "(" + this.etatInit.getNom() + ") --[" + this.symbole + "]-->(" + this.etatFinal.getNom() + ")"; 
 	}
 }
