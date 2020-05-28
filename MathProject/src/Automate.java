@@ -66,7 +66,7 @@ public class Automate {
 			for(int y = 0; y < totalSymboles; y++) {
 				if(this.tabTransi[x][y].equalsIgnoreCase("-")) {
 					test = false;
-					if(this.motVide && y == totalSymboles) {
+					if(this.motVide && y+1 == totalSymboles) {
 						System.out.println("(" + x + ")--[*]-->" );
 					} else {
 						System.out.println("(" + x + ")--[" + this.alphabet[y] + "]-->" );
