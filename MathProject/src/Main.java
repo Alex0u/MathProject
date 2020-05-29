@@ -109,6 +109,7 @@ public class Main {
 					switch(Integer.parseInt(userInput3)) {
 					case 1:
 						automate.determiniser();
+						automate.displayAutomate();
 						break;
 					case 0:
 						break;

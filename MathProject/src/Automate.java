@@ -21,7 +21,8 @@ public class Automate {
 	private boolean isComplet = false;
 	private boolean isDeterministe = true;
 	private boolean isStandard = false;
-	
+	private boolean isTabTransiInitiated = false;
+
 	public Automate(String cheminFichier, int number) {
 		this.listEtats = new ArrayList<Etat>();
 		this.nbEtats = 0;
@@ -36,11 +37,11 @@ public class Automate {
 	public int getId() {
 		return this.id;
 	}
-	
+
 	public boolean isAsynchrone() {
 		if(this.motVide) {
 			System.out.println("L'automate n°" + this.id + " est asynchrone. C'est parce qu'il possède une ou plusieurs transition(s) contenant le mot vide :");
-			
+
 			for(int i = 0; i < this.listEtats.size(); i++) {
 				for(int z = 0; z < this.listEtats.get(i).getListSortantes().size(); z++) {
 					if(this.listEtats.get(i).getListSortantes().get(z).getSymbole().equalsIgnoreCase("*")) {
@@ -55,7 +56,7 @@ public class Automate {
 		}
 		return this.motVide;
 	}
-	
+
 	public boolean isComplet() {
 		boolean test = true;
 		int totalSymboles = this.nbSymboles;
@@ -63,7 +64,7 @@ public class Automate {
 		if(this.motVide) {
 			totalSymboles += 1;
 		}
-		
+
 		for(int x = 0; x < this.nbEtats; x++) {
 			for(int y = 0; y < totalSymboles; y++) {
 				if(this.tabTransi[x][y].equalsIgnoreCase("-")) {
@@ -77,16 +78,16 @@ public class Automate {
 			}
 		}
 		this.isComplet = test;
-		
+
 		if(this.isComplet) {
 			System.out.println("L'automate n°" + this.id + " est complet.");
 		} else {
 			System.out.println("L'automate n°" + this.id + " n'est pas complet car il lui manque les transitions précédentes.");
 		}
-		
+
 		return this.isComplet;
 	}
-	
+
 	public boolean isDeterministe() {
 		if(this.nbInit > 1) {
 			this.isDeterministe = false;
@@ -98,9 +99,9 @@ public class Automate {
 			if(this.motVide) {
 				totalSymboles += 1;
 			}
-			
+
 			for(int x = 0; x < this.nbEtats; x++) {
-				
+
 				for(int y = 0; y < totalSymboles; y++) {
 					String st = this.tabTransi[x][y];
 					String tab[] = st.split(",");
@@ -115,7 +116,7 @@ public class Automate {
 		System.out.println("L'automate n°" + this.id + " est déterministe");
 		return this.isDeterministe;
 	}
-	
+
 	public boolean isStandard() {
 		if(this.nbInit > 1) {
 			this.isStandard = false;
@@ -143,18 +144,18 @@ public class Automate {
 		} else {
 			Etat newEtatInitial = new Etat("i");
 			newEtatInitial.setEntree(true);
-			
+
 			for(int i = 0; i < this.nbEtats; i++) {
 				if(this.listEtats.get(i).isEntree()) {
 					if(!newEtatInitial.isSortie() && this.listEtats.get(i).isSortie()) {
 						newEtatInitial.setSortie(true);
 					}
 					for(int a = 0; a < this.listEtats.get(i).getListSortantes().size(); a++) {
-						
+
 						Transition tr = new Transition(this.listEtats.get(i).getListSortantes().get(a).getSymbole(), this.listEtats.get(i).getListSortantes().get(a).getEtatInit(), this.listEtats.get(i).getListSortantes().get(a).getEtatFinal());
-						
+
 						boolean alreadyIn = false;
-						
+
 						for(int c = 0; c < newEtatInitial.getListSortantes().size(); c++) {
 							tr.setEtatInit(newEtatInitial);
 							if(newEtatInitial.getListSortantes().get(c).equals(tr)) {
@@ -185,13 +186,13 @@ public class Automate {
 
 		ArrayList<Etat> automateTemp = new ArrayList<Etat>();
 		List<String[]> tempTabTransi = new ArrayList<String[]>(); // col = String[] - ligne = ArrayList()
-		
+
 		if(isDeterministe) {
 			System.out.println("Cet automate est déjà déterministe");
 		} else {
 			String nom = "";
 			Etat newEtatInit = new Etat(nom);
-			
+
 			for(int i = 0; i < this.listEtats.size(); i++) {
 				if(this.listEtats.get(i).isEntree()) {
 					if(nom.isEmpty()) {
@@ -208,87 +209,78 @@ public class Automate {
 					newEtatInit.getComposition().add(this.listEtats.get(i));
 				}
 			}
-			
+
 			newEtatInit.setNom(nom);
 			automateTemp.add(newEtatInit);
 			newEtatInit.setEntree(true);
 			this.nbInit = 1;
-				
-				for(int x = 0; x < automateTemp.size(); x++) {
-					//initialisation de la ligne de la table de transition :
-					tempTabTransi.add(new String[totalSymboles]);
-					for(int temp = 0; temp < totalSymboles; temp++) {
-						tempTabTransi.get(x)[temp] = "-";
-					}
-					
-					for(int a = 0; a < automateTemp.get(x).getComposition().size(); a++) {
-						for(int b = 0; b < automateTemp.get(x).getComposition().get(a).getListSortantes().size(); b++) {
-							Transition tr = new Transition(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole(), automateTemp.get(x), automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal());
-							
-							//if(!this.isTrAlreadyIn(automateTemp.get(x).getComposition().get(a).getListSortantes(), tr)) {
-							if(!this.isTrAlreadyInV2(tempTabTransi, automateTemp, tr, x, this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole()))) {
-								if(tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())].equalsIgnoreCase("-")) {
-									tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())] = automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal().getNom();
-								} else {
-									tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())] += "." + automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal().getNom();
-								}
+
+			for(int x = 0; x < automateTemp.size(); x++) {
+				//initialisation de la ligne de la table de transition :
+				tempTabTransi.add(new String[totalSymboles]);
+				for(int temp = 0; temp < totalSymboles; temp++) {
+					tempTabTransi.get(x)[temp] = "-";
+				}
+
+				for(int a = 0; a < automateTemp.get(x).getComposition().size(); a++) {
+					for(int b = 0; b < automateTemp.get(x).getComposition().get(a).getListSortantes().size(); b++) {
+						Transition tr = new Transition(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole(), automateTemp.get(x), automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal());
+
+						if(!this.isTrAlreadyInV2(tempTabTransi, automateTemp, tr, x, this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole()))) {
+							if(tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())].equalsIgnoreCase("-")) {
+								tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())] = automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal().getNom();
+							} else {
+								tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())] += "." + automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal().getNom();
 							}
-							//}
-						}
-					}
-					
-					for(int y = 0; y < totalSymboles; y++) {
-						Etat etat = new Etat(tempTabTransi.get(x)[y]);
-						String[] parts = tempTabTransi.get(x)[y].split("\\.");
-						
-						if(parts.length != 0) {
-							for(int i = 0; i < parts.length; i++) {
-								if (!parts[i].equalsIgnoreCase("-")) {
-									etat.getComposition().add(getEtat(parts[i]));
-									if(!etat.isSortie() && getEtat(parts[i]).isSortie()) {
-										etat.setSortie(true);
-									}
-								}
-							}
-						} else if (!tempTabTransi.get(x)[y].equalsIgnoreCase("-")) {
-							if(!etat.isSortie() && getEtat(tempTabTransi.get(x)[y]).isSortie()) {
-								etat.setSortie(true);
-							}
-							etat.getComposition().add(getEtat(tempTabTransi.get(x)[y]));
-						}
-						
-						if(!tempTabTransi.get(x)[y].equalsIgnoreCase("-") && !isEtatAlreadyIn(automateTemp, etat)) {
-							automateTemp.add(etat);
 						}
 					}
 				}
-				
-				for(int x = 0; x < automateTemp.size(); x++) {
-					if(automateTemp.get(x).isEntree() && automateTemp.get(x).isSortie()) {
-						System.out.print("|  E/S");
-					} else if(automateTemp.get(x).isEntree()) {
-						System.out.print("|    E");
-					} else if(automateTemp.get(x).isSortie()){
-						System.out.print("|    S");
-					} else {
-						System.out.print("|     ");
+
+				for(int y = 0; y < totalSymboles; y++) {
+					Etat etat = new Etat(tempTabTransi.get(x)[y]);
+					String[] parts = tempTabTransi.get(x)[y].split("\\.");
+
+					if(parts.length != 0) {
+						for(int i = 0; i < parts.length; i++) {
+							if (!parts[i].equalsIgnoreCase("-")) {
+								etat.getComposition().add(getEtat(parts[i]));
+								if(!etat.isSortie() && getEtat(parts[i]).isSortie()) {
+									etat.setSortie(true);
+								}
+							}
+						}
+					} else if (!tempTabTransi.get(x)[y].equalsIgnoreCase("-")) {
+						if(!etat.isSortie() && getEtat(tempTabTransi.get(x)[y]).isSortie()) {
+							etat.setSortie(true);
+						}
+						etat.getComposition().add(getEtat(tempTabTransi.get(x)[y]));
 					}
-					
-					System.out.print("| " + automateTemp.get(x).getNom() + " ");
-					System.out.print("| ");
-					
-					for(int y = 0; y < totalSymboles; y++) {
-						System.out.print(tempTabTransi.get(x)[y] + " | ");
+
+					if(!tempTabTransi.get(x)[y].equalsIgnoreCase("-") && !isEtatAlreadyIn(automateTemp, etat)) {
+						automateTemp.add(etat);
 					}
-					
-					System.out.println();
 				}
-				
+			}
 		}
 		
+		this.nbEtats = automateTemp.size();
+		this.tabTransi = new String[automateTemp.size()][totalSymboles];
+		this.setListEtats(automateTemp);
+
+		for(int x = 0; x < tempTabTransi.size(); x++) {
+			for(int y = 0; y < totalSymboles; y++) {
+				this.tabTransi[x][y] = tempTabTransi.get(x)[y];
+				
+				if(!tempTabTransi.get(x)[y].equalsIgnoreCase("-")) {
+					this.listEtats.get(x).getListSortantes().add(new Transition(this.alphabet[y], this.listEtats.get(x), automateTemp.get(automateTemp.indexOf(new Etat(tempTabTransi.get(x)[y])))));
+					this.listEtats.get(x).getListEntrantes().add(new Transition(this.alphabet[y], automateTemp.get(automateTemp.indexOf(new Etat(tempTabTransi.get(x)[y]))), this.listEtats.get(x)));
+				}
+			}
+		}
+
 		this.isDeterministe = true;
 	}
-	
+
 	public boolean isEtatAlreadyIn(ArrayList<Etat> listEtat, Etat etat) {
 		boolean test = false;
 		for(int i = 0; i < listEtat.size(); i++) {
@@ -301,7 +293,7 @@ public class Automate {
 		}
 		return test;
 	}
-	
+
 	public boolean isTrAlreadyIn(ArrayList<Transition> listTr, Transition tr) {
 		boolean test = false;
 		for(int i = 0; i < listTr.size(); i++) {
@@ -316,100 +308,33 @@ public class Automate {
 
 	public boolean isTrAlreadyInV2(List<String[]> tempTabTransi, ArrayList<Etat> listNewEtats,Transition tr, int x, int y) {
 		boolean test = false;
-		
+
 		String[] parts = tempTabTransi.get(x)[y].split("\\.");
 		String[] parts2 = listNewEtats.get(x).getNom().split("\\.");
-		
+
 		if (parts[0].equalsIgnoreCase("-")) {
 			test = false;
 			return test;
 		}
-		
+
 		boolean test2 = true;
 		ArrayList<Etat> listTest = new ArrayList<Etat>();
-		
+
 		for(int a = 0; a < parts.length; a++) {
 			listTest.add(new Etat(parts[a]));
 		}
-		
+
 		for(int i = 0; i < listTest.size(); i++) {
 			if(!listTest.contains(tr.getEtatFinal())) {
 				test2 = false;
 				return test2;
 			}
 		}
-		
 		test = test2;
-		/*if(parts2.length != 0 && parts.length != 0) {
-			boolean test2 = false;
-			
-			ArrayList<Etat> listTest = new ArrayList<Etat>();
-			ArrayList<Etat> listTest2 = new ArrayList<Etat>();
-
-			for(int a = 0; a < parts.length; a++) {
-				listTest.add(new Etat(parts[a]));
-			}
-			for(int i = 0; i < parts2.length; i++) {
-				listTest2.add(new Etat(parts2[i]));
-			}
-
-			for(int i = 0; i < listTest.size(); i++) {
-				if(listTest2.contains(listTest.get(i))) {
-					test2 = true;
-				}
-			}
-			test = test2;
-		} else if(parts2.length != 0) {
-			boolean test2 = true;
-			
-			ArrayList<Etat> listTest = new ArrayList<Etat>();
-
-			for(int a = 0; a < parts2.length; a++) {
-				listTest.add(new Etat(parts2[a]));
-			}
-
-			for(int i = 0; i < listTest.size(); i++) {
-				if(!tempTabTransi.get(x)[y].equalsIgnoreCase("-")) {
-					if(listTest.contains(new Etat (listNewEtats.get(x).getNom()))) {
-						test2 = true;
-					}
-				}
-			}
-			test = test2;
-		} else if(parts.length != 0) {
-			boolean test2 = true;
-			
-			ArrayList<Etat> listTest = new ArrayList<Etat>();
-
-			for(int a = 0; a < parts.length; a++) {
-				listTest.add(new Etat(parts[a]));
-			}
-
-			for(int i = 0; i < listTest.size(); i++) {
-				if(!tempTabTransi.get(x)[y].equalsIgnoreCase("-")) {
-					if(listTest.contains(new Etat (tempTabTransi.get(x)[y]))) {
-						test2 = true;
-					}
-				}
-			}
-			test = test2;
-		} else if(parts.length != 0) {
-			for(int i = 0; i < parts.length; i++) {
-				if (!parts[i].equalsIgnoreCase("-")) {
-					if(tr.getEtatFinal().getNom().equalsIgnoreCase(parts[i])) {
-						test = true;
-					}
-				}
-			}
-		} else if (!tempTabTransi.get(x)[y].equalsIgnoreCase("-")) {
-			if(tr.getEtatFinal().getNom().equalsIgnoreCase(tempTabTransi.get(x)[y])) {
-				test = true;
-			}
-		}*/
 		
 		return test;
 	}
-	
+
 	public int getSymboleIndex(String symbole) {
 		if(symbole.equalsIgnoreCase("*")) {
 			int i = this.nbSymboles;
@@ -426,7 +351,7 @@ public class Automate {
 			return 0;
 		}
 	}
-	
+
 	public int getNbEtats() {
 		return nbEtats;
 	}
@@ -580,12 +505,14 @@ public class Automate {
 				}
 			}
 		}
+		this.isTabTransiInitiated = true;
 	}
-	
-	
 
 	public void displayAutomate() {
-		createTabTransi();
+		if(!isTabTransiInitiated) {
+			createTabTransi();
+		}
+		
 		int cpt = 0;
 		System.out.print("|          |           |");
 		for(int i = 0; i < this.nbSymboles; i++) {
@@ -617,12 +544,23 @@ public class Automate {
 
 			if(this.poubelle) {
 				System.out.print(st + "     " + etat.getNom() +"     |");
+			} else if(etat.getNom().length() == 1) {
+				System.out.print(st + "     " + etat.getNom() +"     |");
+			} else if(etat.getNom().length() == 2) {
+				System.out.print(st + "    " + etat.getNom() +"     |");
+			} else if(etat.getNom().length() == 3) {
+				System.out.print(st + "    " + etat.getNom() +"    |");
+			} else if(etat.getNom().length() == 4) {
+				System.out.print(st + "    " + etat.getNom() +"   |");
+			} else if(etat.getNom().length() == 5) {
+				System.out.print(st + "   " + etat.getNom() +"   |");
 			} else {
 				System.out.print(st + "     " + etat.getNom() +"     |");
 			}
+
 			for(int y = 0; y < totalSymboles; y++) {
 				if (this.tabTransi[x][y].length() == 1) {
-					System.out.print("     " + this.tabTransi[x][y] + "     |");
+						System.out.print("     " + this.tabTransi[x][y] + "     |");
 				} else if (this.tabTransi[x][y].length() == 2) {
 					System.out.print("     " + this.tabTransi[x][y] + "    |");
 				} else if (this.tabTransi[x][y].length() == 3) {
