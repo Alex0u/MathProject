@@ -84,25 +84,50 @@ public class Main {
 				System.out.print("1 : Cet automate est-il asynchrone ?\n");
 				System.out.print("2 : Cet automate est-il complet ?\n");
 				System.out.print("3 : Cet automate est-il déterministe ?\n");
+				System.out.print("4 : Cet automate est-il standard ?\n");
 				
 				String userInput2 = sc.nextLine();
 
 				switch(Integer.parseInt(userInput2)) {
 				case 0:
-					System.out.println("0");
 					continuer = false;
 					break;
 				case 1:
-					System.out.println("1");
 					automate.isAsynchrone();
 					break;
 				case 2:
-					System.out.println("2");
 					automate.isComplet();
 					break;
 				case 3:
-					System.out.println("3");
-					automate.isDeterministe();
+					if(automate.isDeterministe()) {
+						break;
+					}
+
+					System.out.println("Voulez vous déterminiser cet automate ? \n 1 : oui\n 0 : non\n");
+
+					String userInput3 = sc.nextLine();
+					switch(Integer.parseInt(userInput3)) {
+					case 1:
+						automate.determiniser();
+						break;
+					case 0:
+						break;
+					}
+					break;
+				case 4:
+					automate.isStandard();
+					
+					System.out.println("Voulez vous standardiser cet automate ? \n 1 : oui\n 0 : non\n");
+
+					String userInput4 = sc.nextLine();
+					switch(Integer.parseInt(userInput4)) {
+					case 1:
+						automate.standardiser();
+						automate.displayAutomate();
+						break;
+					case 0:
+						break;
+					}
 					break;
 				}
 			}
