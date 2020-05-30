@@ -70,9 +70,9 @@ public class Automate {
 				if(this.tabTransi[x][y].equalsIgnoreCase("-")) {
 					test = false;
 					if(this.motVide && y+1 == totalSymboles) {
-						System.out.println("(" + x + ")--[*]-->" );
+						System.out.println(this.listEtats.get(x) + "--[*]-->" );
 					} else {
-						System.out.println("(" + x + ")--[" + this.alphabet[y] + "]-->" );
+						System.out.println(this.listEtats.get(x) + "--[" + this.alphabet[y] + "]-->" );
 					}
 				}
 			}
@@ -281,6 +281,47 @@ public class Automate {
 		this.isDeterministe = true;
 	}
 
+	public void completion() {
+		if(this.isComplet) {
+			System.out.println("Cet automate est déjà complet");
+		} else {
+			if(!this.isDeterministe) {
+				System.out.println("Vous devez déterminiser cet automate avant de le compléter");
+			} else {
+				this.poubelle = true;
+				this.nbEtats += 1;
+				this.listEtats.add(new Etat("P"));
+				
+				String[][] newTabTransi = new String[this.nbEtats][this.nbSymboles];
+				
+				for(int x = 0; x < this.nbEtats; x++) {
+					for(int y = 0; y < this.nbSymboles; y++) {
+						newTabTransi[x][y] = "-";
+					}
+				}
+				
+				for(int x = 0; x < this.nbEtats - 1; x++) {
+					for(int y = 0; y < this.nbSymboles; y++) {
+						newTabTransi[x][y] = this.tabTransi[x][y];
+					}
+				}
+				
+				this.tabTransi = newTabTransi;
+				
+				for(int x = 0; x < this.nbEtats; x++) {
+					for(int y = 0; y < this.nbSymboles; y++) {
+						if(this.tabTransi[x][y].equalsIgnoreCase("-")) {
+							this.tabTransi[x][y] = "P";
+							this.listEtats.get(x).addListEntrantes(new Transition(this.alphabet[y], this.listEtats.get(x), this.listEtats.get(this.nbEtats-1)));
+							this.listEtats.get(x).addListSortantes(new Transition(this.alphabet[y], this.listEtats.get(this.nbEtats-1), this.listEtats.get(x)));
+						}
+					}
+				}
+				this.isComplet = true;
+			}
+		}
+	}
+	
 	public boolean isEtatAlreadyIn(ArrayList<Etat> listEtat, Etat etat) {
 		boolean test = false;
 		for(int i = 0; i < listEtat.size(); i++) {
@@ -422,15 +463,16 @@ public class Automate {
 				}
 				if(parts[2].equalsIgnoreCase("P")) {
 					this.poubelle = true;
-					this.listEtats.remove(this.nbEtats-1);
-					Etat etat = new Etat("P");
+					this.listEtats.get(this.nbEtats-1).setNom("P");
+					Etat etat = this.listEtats.get(this.nbEtats-1);
 					etat.setSortie(false);
 					etat.setEntree(false);
-					this.listEtats.add(etat);
 				} else if (parts[0].equalsIgnoreCase("P")) {
 					this.poubelle = true;
-					this.listEtats.remove(this.nbEtats-1);
-					this.listEtats.add(new Etat("P"));
+					this.listEtats.get(this.nbEtats-1).setNom("P");
+					Etat etat = this.listEtats.get(this.nbEtats-1);
+					etat.setSortie(false);
+					etat.setEntree(false);
 				}
 
 				Etat etatInit = getEtat(parts[0]);
@@ -542,7 +584,7 @@ public class Automate {
 				st = "|          |";
 			}
 
-			if(this.poubelle) {
+			if(etat.getNom().equalsIgnoreCase("P")) {
 				System.out.print(st + "     " + etat.getNom() +"     |");
 			} else if(etat.getNom().length() == 1) {
 				System.out.print(st + "     " + etat.getNom() +"     |");
@@ -575,6 +617,8 @@ public class Automate {
 					System.out.print(" " + this.tabTransi[x][y] +"  |");
 				} else if (this.tabTransi[x][y].length() == 8) {
 					System.out.print(" " + this.tabTransi[x][y] +" |");
+				} else if (this.tabTransi[x][y].length() == 8) {
+					System.out.print("" + this.tabTransi[x][y] +"|");
 				}
 			}
 			System.out.println();

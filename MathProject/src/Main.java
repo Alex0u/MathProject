@@ -96,7 +96,26 @@ public class Main {
 					automate.isAsynchrone();
 					break;
 				case 2:
-					automate.isComplet();
+					if(automate.isComplet()) {
+						break;
+					}
+					
+					System.out.println("Voulez vous compléter cet automate ? \n 1 : oui\n 0 : non\n");
+
+					String userInput3 = sc.nextLine();
+					switch(Integer.parseInt(userInput3)) {
+					case 1:
+						if(automate.isDeterministe()) {
+							automate.completion();
+							automate.displayAutomate();
+						} else {
+							System.out.println("Vous devez déterminiser cet automate avant de le compléter");
+						}
+						break;
+					case 0:
+						break;
+					}
+					
 					break;
 				case 3:
 					if(automate.isDeterministe()) {
@@ -105,8 +124,8 @@ public class Main {
 
 					System.out.println("Voulez vous déterminiser cet automate ? \n 1 : oui\n 0 : non\n");
 
-					String userInput3 = sc.nextLine();
-					switch(Integer.parseInt(userInput3)) {
+					String userInput4 = sc.nextLine();
+					switch(Integer.parseInt(userInput4)) {
 					case 1:
 						automate.determiniser();
 						automate.displayAutomate();
@@ -120,8 +139,8 @@ public class Main {
 					
 					System.out.println("Voulez vous standardiser cet automate ? \n 1 : oui\n 0 : non\n");
 
-					String userInput4 = sc.nextLine();
-					switch(Integer.parseInt(userInput4)) {
+					String userInput5 = sc.nextLine();
+					switch(Integer.parseInt(userInput5)) {
 					case 1:
 						automate.standardiser();
 						automate.displayAutomate();
