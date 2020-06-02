@@ -194,7 +194,7 @@ public class Automate {
 		
 		for(int y = 0; y < this.nbSymboles; y++) {
 			for(int i = 0; i < this.listEtats.get(this.nbEtats-1).getListSortantes().size(); i++) {
-				if(this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getSymbole().equalsIgnoreCase(this.alphabet[y]) || (this.alphabet[y] != "a" && this.alphabet[y] != "b" && this.alphabet[y] != "c") && this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getSymbole().equalsIgnoreCase("*")) {
+				if(this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getSymbole().equalsIgnoreCase(this.alphabet[y]) || (y == this.nbSymboles-1) && this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getSymbole().equalsIgnoreCase("*")) {
 					if(this.tabTransi[this.nbEtats-1][y].equalsIgnoreCase("-")) {
 						this.tabTransi[this.nbEtats-1][y] = this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getEtatFinal().getNom();
 					} else {
@@ -703,7 +703,7 @@ public class Automate {
 
 			for(int y = 0; y < totalSymboles; y++) {
 				for(int i = 0; i < etat.getListSortantes().size(); i++) {
-					if(etat.getListSortantes().get(i).getSymbole().equalsIgnoreCase(this.alphabet[y]) || (this.alphabet[y] != "a" && this.alphabet[y] != "b" && this.alphabet[y] != "c") && etat.getListSortantes().get(i).getSymbole().equalsIgnoreCase("*")) {
+					if(etat.getListSortantes().get(i).getSymbole().equalsIgnoreCase(this.alphabet[y]) || (y == totalSymboles-1) && etat.getListSortantes().get(i).getSymbole().equalsIgnoreCase("*")) {
 						if(this.tabTransi[x][y].equalsIgnoreCase("-")) {
 							this.tabTransi[x][y] = etat.getListSortantes().get(i).getEtatFinal().getNom();
 						} else {
