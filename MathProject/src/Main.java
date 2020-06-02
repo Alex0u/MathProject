@@ -127,8 +127,22 @@ public class Main {
 					String userInput4 = sc.nextLine();
 					switch(Integer.parseInt(userInput4)) {
 					case 1:
-						automate.determiniser();
-						automate.displayAutomate();
+						if(automate.isAsynchrone()) {
+							System.out.println("Cet automate est asynchrone, voulez vous quand même le déterminiser ? \n 1 : oui\n 0 : non\n");
+
+							userInput4 = sc.nextLine();
+							switch(Integer.parseInt(userInput4)) {
+							case 1:
+								automate.determiniser_asynchrone();
+								automate.displayAutomate();
+								break;
+							case 0:
+								break;
+							}
+						} else {
+							automate.determiniser();
+							automate.displayAutomate();
+						}
 						break;
 					case 0:
 						break;

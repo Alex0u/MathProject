@@ -152,7 +152,7 @@ public class Automate {
 					}
 					for(int a = 0; a < this.listEtats.get(i).getListSortantes().size(); a++) {
 
-						Transition tr = new Transition(this.listEtats.get(i).getListSortantes().get(a).getSymbole(), this.listEtats.get(i).getListSortantes().get(a).getEtatInit(), this.listEtats.get(i).getListSortantes().get(a).getEtatFinal());
+						Transition tr = new Transition(this.listEtats.get(i).getListSortantes().get(a).getSymbole(), newEtatInitial, this.listEtats.get(i).getListSortantes().get(a).getEtatFinal());
 
 						boolean alreadyIn = false;
 
@@ -172,13 +172,43 @@ public class Automate {
 			}
 			this.listEtats.add(newEtatInitial);
 			this.nbEtats += 1;
+			this.isStandard = true;
+			this.nbInit = 1;
 		}
+		
+		String[][] newTabTransi = new String[this.nbEtats][this.nbSymboles];
+		
+		for(int x = 0; x < this.nbEtats; x++) {
+			for(int y = 0; y < this.nbSymboles; y++) {
+				newTabTransi[x][y] = "-";
+			}
+		}
+		
+		for(int x = 0; x < this.nbEtats - 1; x++) {
+			for(int y = 0; y < this.nbSymboles; y++) {
+				newTabTransi[x][y] = this.tabTransi[x][y];
+			}
+		}
+		
+		this.tabTransi = newTabTransi;
+		
+		for(int y = 0; y < this.nbSymboles; y++) {
+			for(int i = 0; i < this.listEtats.get(this.nbEtats-1).getListSortantes().size(); i++) {
+				if(this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getSymbole().equalsIgnoreCase(this.alphabet[y]) || (this.alphabet[y] != "a" && this.alphabet[y] != "b" && this.alphabet[y] != "c") && this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getSymbole().equalsIgnoreCase("*")) {
+					if(this.tabTransi[this.nbEtats-1][y].equalsIgnoreCase("-")) {
+						this.tabTransi[this.nbEtats-1][y] = this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getEtatFinal().getNom();
+					} else {
+						this.tabTransi[this.nbEtats-1][y] += "," + this.listEtats.get(this.nbEtats-1).getListSortantes().get(i).getEtatFinal().getNom();
+					}
+				}
+			}
+		}
+		
 		this.isStandard = true;
 	}
 
 	public void determiniser() {
 		int totalSymboles = this.nbSymboles;
-		int totalEtats = this.nbEtats;
 
 		if(this.motVide) {
 			totalSymboles += 1;
@@ -281,6 +311,134 @@ public class Automate {
 		this.isDeterministe = true;
 	}
 
+	public void determiniser_asynchrone() {
+		
+		ArrayList<Etat> automateTemp = new ArrayList<Etat>();
+		List<String[]> tempTabTransi = new ArrayList<String[]>(); // col = String[] - ligne = ArrayList()
+
+		if(isDeterministe) {
+			System.out.println("Cet automate est déjà déterministe");
+		} else {
+
+			int totalSymboles = this.nbSymboles;
+
+			if(this.motVide) {
+				totalSymboles += 1;
+				
+				String nom = "";
+				Etat newEtatInit = new Etat(nom);
+
+				for(int i = 0; i < this.listEtats.size(); i++) {
+					if(this.listEtats.get(i).isEntree()) {
+						if(nom.isEmpty()) {
+							nom += this.listEtats.get(i).getNom();
+							if(this.listEtats.get(i).isSortie() && !newEtatInit.isSortie()) {
+								newEtatInit.setSortie(true);
+							}
+						} else {
+							nom += "." + this.listEtats.get(i).getNom();
+							if(this.listEtats.get(i).isSortie() && !newEtatInit.isSortie()) {
+								newEtatInit.setSortie(true);
+							}
+						}
+						newEtatInit.getComposition().add(this.listEtats.get(i));
+					}
+				}
+				
+				for(int i = 0; i < newEtatInit.getComposition().size(); i++) {
+					for(int y = 0; y < newEtatInit.getComposition().get(i).getListSortantes().size(); y++) {
+						if(newEtatInit.getComposition().get(i).getListSortantes().get(y).getSymbole().equalsIgnoreCase("*")) {
+							newEtatInit.getComposition().add(newEtatInit.getComposition().get(i).getListSortantes().get(y).getEtatFinal());
+							
+							if(nom.isEmpty()) {
+								nom += newEtatInit.getComposition().get(i).getListSortantes().get(y).getEtatFinal().getNom();
+							} else {
+								nom += "." + newEtatInit.getComposition().get(i).getListSortantes().get(y).getEtatFinal().getNom();
+							}
+							
+							if(!newEtatInit.isSortie() && newEtatInit.getComposition().get(i).getListSortantes().get(y).getEtatFinal().isSortie()) {
+								newEtatInit.setSortie(true);
+							}
+						}							
+					}
+				}
+				
+				newEtatInit.setNom(nom);
+				automateTemp.add(newEtatInit);
+				newEtatInit.setEntree(true);
+				this.nbInit = 1;
+
+				for(int x = 0; x < automateTemp.size(); x++) {
+					//initialisation de la ligne de la table de transition :
+					tempTabTransi.add(new String[totalSymboles]);
+					for(int temp = 0; temp < totalSymboles; temp++) {
+						tempTabTransi.get(x)[temp] = "-";
+					}
+
+					for(int a = 0; a < automateTemp.get(x).getComposition().size(); a++) {
+						for(int b = 0; b < automateTemp.get(x).getComposition().get(a).getListSortantes().size(); b++) {
+							Transition tr = new Transition(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole(), automateTemp.get(x), automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal());
+
+							if(!this.isTrAlreadyInV2(tempTabTransi, automateTemp, tr, x, this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())) && !automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole().equalsIgnoreCase("*")) {
+								if(tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())].equalsIgnoreCase("-")) {
+									tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())] = automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal().getNom();
+								} else {
+									tempTabTransi.get(x)[this.getSymboleIndex(automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getSymbole())] += "." + automateTemp.get(x).getComposition().get(a).getListSortantes().get(b).getEtatFinal().getNom();
+								}
+							}
+						}
+					}
+
+					for(int y = 0; y < totalSymboles; y++) {
+						Etat etat = new Etat(tempTabTransi.get(x)[y]);
+						String[] parts = tempTabTransi.get(x)[y].split("\\.");
+
+						if(parts.length != 0) {
+							for(int i = 0; i < parts.length; i++) {
+								if (!parts[i].equalsIgnoreCase("-")) {
+									etat.getComposition().add(getEtat(parts[i]));
+									if(!etat.isSortie() && getEtat(parts[i]).isSortie()) {
+										etat.setSortie(true);
+									}
+								}
+							}
+						} else if (!tempTabTransi.get(x)[y].equalsIgnoreCase("-")) {
+							if(!etat.isSortie() && getEtat(tempTabTransi.get(x)[y]).isSortie()) {
+								etat.setSortie(true);
+							}
+							etat.getComposition().add(getEtat(tempTabTransi.get(x)[y]));
+						}
+
+						if(!tempTabTransi.get(x)[y].equalsIgnoreCase("-") && !isEtatAlreadyIn(automateTemp, etat)) {
+							automateTemp.add(etat);
+						}
+					}
+				}
+				
+				totalSymboles -= 1;
+				this.nbEtats = automateTemp.size();
+				this.tabTransi = new String[automateTemp.size()][totalSymboles];
+				this.setListEtats(automateTemp);
+
+				for(int x = 0; x < tempTabTransi.size(); x++) {
+					for(int y = 0; y < totalSymboles; y++) {
+						this.tabTransi[x][y] = tempTabTransi.get(x)[y];
+						
+						if(!tempTabTransi.get(x)[y].equalsIgnoreCase("-")) {
+							this.listEtats.get(x).getListSortantes().add(new Transition(this.alphabet[y], this.listEtats.get(x), automateTemp.get(automateTemp.indexOf(new Etat(tempTabTransi.get(x)[y])))));
+							this.listEtats.get(x).getListEntrantes().add(new Transition(this.alphabet[y], automateTemp.get(automateTemp.indexOf(new Etat(tempTabTransi.get(x)[y]))), this.listEtats.get(x)));
+						}
+					}
+				}
+				
+				this.isDeterministe = true;
+				this.motVide = false;
+			} else {
+				System.out.println("Cet automate n'est pas asynchrone.");
+			}
+		}
+	}
+	
 	public void completion() {
 		if(this.isComplet) {
 			System.out.println("Cet automate est déjà complet");
@@ -351,7 +509,6 @@ public class Automate {
 		boolean test = false;
 
 		String[] parts = tempTabTransi.get(x)[y].split("\\.");
-		String[] parts2 = listNewEtats.get(x).getNom().split("\\.");
 
 		if (parts[0].equalsIgnoreCase("-")) {
 			test = false;
@@ -378,11 +535,7 @@ public class Automate {
 
 	public int getSymboleIndex(String symbole) {
 		if(symbole.equalsIgnoreCase("*")) {
-			int i = this.nbSymboles;
-			if(this.motVide) {
-				i++;
-			}
-			return i;
+			return this.nbSymboles;
 		} else {
 			for(int i = 0; i < this.alphabet.length; i++) {
 				if(this.alphabet[i].equalsIgnoreCase(symbole)) {
@@ -417,9 +570,22 @@ public class Automate {
 		this.poubelle = b; 
 	}
 
+	public int getNbFinaux() {
+		return nbFinaux;
+	}
+
+	public int getNbTransition() {
+		return nbTransition;
+	}
+	
+	public boolean isPoubelle() {
+		return poubelle;
+	}
+	
 	public void setAutomate() throws IOException {
 		File file = new File(fichier);
 		BufferedReader br = new BufferedReader(new FileReader(file));
+		
 		int cpt = 0;
 		String st;
 
