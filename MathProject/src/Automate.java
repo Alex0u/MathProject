@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Automate {
 	private int id;
@@ -478,6 +479,55 @@ public class Automate {
 				this.isComplet = true;
 			}
 		}
+	}
+	
+	public void reconnaissance_deter_complet() {
+		
+		if(this.isComplet && this.isDeterministe) {
+			
+			Scanner sc = new Scanner(System.in);
+			System.out.println("Veuillez entrer le mot à reconnaître dans le format suivant : 'mot' :\n");
+			String userInput = sc.nextLine();
+			
+			while(!userInput.equalsIgnoreCase("fin")) {
+				reconnaitre_mot(userInput);
+				System.out.println("Veuillez entrer le mots à reconnaître dans le format suivant : 'mot' :\n");
+				userInput = sc.nextLine();
+			}
+		} else {
+			System.out.println("Cet automate n'est pas déterministe et complet, vous ne pouvez pas encore reconnaître de mot.");
+		}
+
+	}
+	
+	public void reconnaitre_mot(String mot) {
+		Etat etat_cour = this.listEtats.get(0);
+		String symbole_cour = "" + mot.charAt(0);
+		int cpt = 0;
+		
+		while(cpt != mot.length()-1) {
+			etat_cour = etat_cible(etat_cour, symbole_cour);
+			cpt++;
+			symbole_cour = "" + mot.charAt(cpt);
+		}
+		
+		if(etat_cour.isSortie()) {
+			System.out.println("Le mot " + mot + " est reconnu par l'automate n°" + this.id);
+		} else {
+			System.out.println("Le mot " + mot + " n'est pas reconnu par l'automate n°" + this.id);
+		}
+	}
+	
+	public Etat etat_cible(Etat etat_cour, String symbole_cour) {
+		Etat etat_cible = etat_cour;
+		
+		for(int i = 0; i < etat_cour.getListSortantes().size(); i++) {
+			if(etat_cour.getListSortantes().get(i).getSymbole().equalsIgnoreCase(symbole_cour)) {
+				etat_cible = etat_cour.getListSortantes().get(i).getEtatFinal();
+			}
+		}
+		
+		return etat_cible;
 	}
 	
 	public boolean isEtatAlreadyIn(ArrayList<Etat> listEtat, Etat etat) {

@@ -22,7 +22,7 @@ public class Main {
 			
 			action(automate);
 			
-			choice("Charger un graphe en mémoire ?\n 1 : oui\n 0 : non\n");
+			choice = choice("Charger un graphe en mémoire ?\n 1 : oui\n 0 : non\n");
 		}
 	}
 	
@@ -42,8 +42,9 @@ public class Main {
 			result = userInput.equals("0") | userInput.equals("1");
 		} if(userInput.equals("1")) {
 			choix = true;
+			
 		} else {
-			sc.close();
+			System.out.println("--------- Programme terminé ---------");
 		}
 		
 		return choix;
@@ -163,10 +164,20 @@ public class Main {
 						break;
 					}
 					break;
+				case 5:					
+					System.out.println("Voulez vous reconnaitre un mot avec cet automate ? \n 1 : oui\n 0 : non\n");
+
+					String userInput6 = sc.nextLine();
+					switch(Integer.parseInt(userInput6)) {
+					case 1:
+						automate.reconnaissance_deter_complet();
+						break;
+					case 0:
+						break;
+					}
+					break;
 				}
 			}
-		} else {
-			sc.close();
 		}
 	}
 }
