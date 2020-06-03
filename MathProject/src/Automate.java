@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Automate {
+public class Automate implements Cloneable {
 	private int id;
 	private int nbEtats;
 	private ArrayList<Etat> listEtats;
@@ -17,6 +17,7 @@ public class Automate {
 	private int nbTransition;
 	private String[] alphabet = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 	private String[][] tabTransi;
+	private Automate complémentaire = null;
 	private boolean motVide = false;
 	private boolean poubelle = false;
 	private boolean isComplet = false;
@@ -530,6 +531,81 @@ public class Automate {
 		return etat_cible;
 	}
 	
+	public void automate_complementaire() {
+		if(this.complémentaire == null) {
+
+			this.complémentaire = new Automate(this.fichier, Integer.parseInt(this.id + "1"));
+			this.complémentaire.nbEtats = this.nbEtats;
+			this.complémentaire.nbSymboles = this.nbSymboles;
+			this.complémentaire.nbTransition = this.nbTransition;
+			this.complémentaire.isComplet = this.isComplet;
+			this.complémentaire.isDeterministe = this.isDeterministe;
+			this.complémentaire.isStandard = this.isStandard;
+			this.complémentaire.motVide = this.motVide;
+			this.complémentaire.poubelle = this.poubelle;
+			
+			for(Etat etat : this.listEtats) {
+				Etat newEtat = new Etat(etat.getNom());
+				this.complémentaire.listEtats.add(newEtat);
+				newEtat.setEntree(etat.isEntree());
+				newEtat.setSortie(etat.isSortie());
+			}
+			
+			for(Etat etat : this.listEtats) {
+				for(Etat etat2 : etat.getComposition()) {
+					this.complémentaire.listEtats.get(this.listEtats.indexOf(etat)).getComposition().add(etat2);
+				}
+			}
+			
+			int cpt = 0;
+			for(Etat etat : this.listEtats) {				
+				for(Transition tr : etat.getListSortantes()) {
+					this.complémentaire.listEtats.get(cpt).addListSortantes(new Transition(tr.getSymbole(), this.complémentaire.listEtats.get(this.listEtats.indexOf(tr.getEtatInit())), this.complémentaire.listEtats.get(this.listEtats.indexOf(tr.getEtatFinal()))));
+				}
+				for(Transition tr : etat.getListEntrantes()) {
+					this.complémentaire.listEtats.get(cpt).addListEntrantes(new Transition(tr.getSymbole(), this.complémentaire.listEtats.get(this.listEtats.indexOf(tr.getEtatInit())), this.complémentaire.listEtats.get(this.listEtats.indexOf(tr.getEtatFinal()))));
+				}
+				cpt++;
+			}
+			
+			this.complémentaire.setId(Integer.parseInt(this.id + "1"));
+			
+			int cpt2 = 0;
+			for(Etat etat : this.complémentaire.getListEtats()) {
+				if(etat.isSortie()) {
+					etat.setSortie(false);
+				} else {
+					etat.setSortie(true);
+					cpt++;
+				}
+			}
+			
+			this.nbFinaux = cpt2;
+			
+			System.out.println("Voici la table de transition de l'automate n°" + this.complémentaire.id + ", le complémentaire de l'automate n°" + this.id);
+			
+			this.complémentaire.displayAutomate();
+			
+		} else {
+			System.out.println("Un automate compléméntaire a déjà été enregistré. Voulez vous regénérer un automate complémentaire ?\n 1 : oui\n 0 : non\n");
+			Scanner sc = new Scanner(System.in);
+			
+			String userInput = sc.nextLine();
+			switch(Integer.parseInt(userInput)) {
+			case 1:
+				this.complémentaire = null;
+				automate_complementaire();
+				break;
+			case 0:
+				break;
+			}
+		}
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public boolean isEtatAlreadyIn(ArrayList<Etat> listEtat, Etat etat) {
 		boolean test = false;
 		for(int i = 0; i < listEtat.size(); i++) {

@@ -86,6 +86,8 @@ public class Main {
 				System.out.print("2 : Cet automate est-il complet ?\n");
 				System.out.print("3 : Cet automate est-il déterministe ?\n");
 				System.out.print("4 : Cet automate est-il standard ?\n");
+				System.out.print("5 : Reconnaître un mot avec cet automate ?\n");
+				System.out.print("6 : Génerer un automate complémentaire ?\n");
 				
 				String userInput2 = sc.nextLine();
 
@@ -175,6 +177,10 @@ public class Main {
 					case 0:
 						break;
 					}
+					break;
+				case 6:					
+					automate.automate_complementaire();
+					automate.displayAutomate();
 					break;
 				}
 			}

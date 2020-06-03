@@ -73,5 +73,4 @@ public class Transition {
 			return false;
 		return true;
 	}
-	
 }
